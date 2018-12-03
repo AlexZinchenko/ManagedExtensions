@@ -1,0 +1,2 @@
+# ManagedExtensions
+WinDbg managed extensions
