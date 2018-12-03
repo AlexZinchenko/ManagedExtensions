@@ -1,0 +1,25 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/ManagedExtensions/v15
+/bin
+/obj
+/packages
+/ManagedExtensions.csproj.user
+/ManagedExtensions.suo
+/ManagedExtensions.v12.suo
+/content/ILMergeOrder.txt
+/ILMergeOrder.txt
+/ILMergeInternalizeExcludeList.txt
+/ILMerge.props
+/.vs
+/ManagedExtensions.CommonCommands/bin
+/ManagedExtensions.CommonCommands/obj
+/ManagedExtensions.Core/bin
+/ManagedExtensions.Core/obj
+*.csproj.user
+/Starter/bin
+/Starter/obj
+/DllExport/bin
+/DllExport/obj
