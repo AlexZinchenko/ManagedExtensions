@@ -23,3 +23,9 @@
 /Starter/obj
 /DllExport/bin
 /DllExport/obj
+*.nupkg
+/ManagedExtensions.CommonCommands/nuget.exe
+/ManagedExtensions.Starter/bin
+/ManagedExtensions.Starter/obj
+/SampleExtension/bin
+/SampleExtension/obj

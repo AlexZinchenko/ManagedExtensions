@@ -35,7 +35,7 @@ namespace ManagedExtensions.CommonCommands.DependencyProperties
                 Output.WriteLine("Prop name:\t{0}", propInfo.Name);
                 Output.WriteLine("Value info:");
                 Output.WriteLine("-----------");
-                Output.Execute(GetDumpObjectCommand(propInfo.Value));
+                Output.Execute(ExternalCommandNames.DumpObjectBySos(propInfo.Value));
             }
             else
             {
@@ -47,14 +47,6 @@ namespace ManagedExtensions.CommonCommands.DependencyProperties
         public string GetCallString(ulong objAddress, string propName)
         {
             return $"!{nameof(dumpdp)} {objAddress:x8} {propName}";
-        }
-
-        private string GetDumpObjectCommand(DynamicInstance obj)
-        {
-            if (obj.Type.IsObjectReference)
-                return ExternalCommandNames.Do(obj.Address);
-            else
-                return ExternalCommandNames.DumpVC(obj.Address, obj.Type.MethodTable);
         }
 
         public override void WriteHelp()

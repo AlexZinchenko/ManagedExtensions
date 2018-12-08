@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Alexander Zinchenko</authors>
+    <owners>Alexander Zinchenko</owners>
+    <!-- <licenseUrl></licenseUrl> -->
+    <projectUrl>https://github.com/AlexZinchenko/ManagedExtensions</projectUrl>
+<!--    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl> -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>WinDbg common commands</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>Windbg C# extension</tags>
+  </metadata>
+<!--   <files>
+    <file src="bin\release-net4.0\CalcBinding.dll" target="lib\net40" />
+</files> -->
+</package>
