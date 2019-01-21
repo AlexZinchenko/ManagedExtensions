@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using ManagedExtensions.Core;
 using ManagedExtensions.Core.Commands;
-using ManagedExtensions.Core.Dynamic;
+using ManagedExtensions.Core.Verifiers;
 
 namespace ManagedExtensions.CommonCommands.DependencyProperties
 {
@@ -29,13 +29,16 @@ namespace ManagedExtensions.CommonCommands.DependencyProperties
                 var objAddress = ulong.Parse(argsList[0], NumberStyles.HexNumber);
                 var propertyName = argsList[1];
 
+                if (!VerifyHelpers.VerifyObjAddress(objAddress, Heap, Output))
+                    return;
+
                 var depPropertiesProvider = DepPropertiesProvider.Get(objAddress, Heap);
                 var propInfo = depPropertiesProvider.GetPropertyInfo(propertyName);
 
                 Output.WriteLine("Prop name:\t{0}", propInfo.Name);
                 Output.WriteLine("Value info:");
                 Output.WriteLine("-----------");
-                Output.Execute(ExternalCommandNames.DumpObjectBySos(propInfo.Value));
+                Output.Execute(ExternalCommandNames.DumpStructOrObject(propInfo.Value));
             }
             else
             {

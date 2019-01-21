@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using ManagedExtensions.Core.Helpers;
+using Microsoft.Diagnostics.Runtime;
 
 namespace ManagedExtensions.Starter
 {
@@ -50,17 +51,51 @@ namespace ManagedExtensions.Starter
 
         private static void OpenDump(string fileName)
         {
-            var startupCommand = "!dumpdps 17e5ad18";
+            var startupCommands = new List<string>(startCommands)
+            {
+                GetLoadExtensionCommand()
+            };
+
+            ulong? startupObjectAddress = GetObjectAddress(fileName, "SampleApp.TestRoot", "Dictionaries.ExampleDictionary");
+
+            if (startupObjectAddress != null)
+            {
+                startupCommands.Add($"!do {startupObjectAddress:x}");
+            }
+
             var winDbgCommandsFile = GetCommandsTempFile(
-                startCommands.Concat(new []
-                {
-                    GetLoadExtensionCommand(),
-                    startupCommand
-                }));
+                startCommands.Concat(startupCommands));
 
             Process
                 .Start("windbg.exe", $@"-z ""{fileName}"" -c ""$<{winDbgCommandsFile}""")
                 .WaitForExit();
+        }
+
+        private static ulong? GetObjectAddress(string dumpPath, string typeName, string propertyPath)
+        {
+            try
+            {
+                var properties = propertyPath.Split('.');
+                using (var dataTarget = DataTarget.LoadCrashDump(dumpPath))
+                {
+                    var runtimeInfo = dataTarget.ClrVersions[0];
+                    var runtime = runtimeInfo.CreateRuntime();
+
+                    var rootType = runtime.Heap.GetTypeByName(typeName);
+                    var staticField = rootType.GetStaticFieldByName(properties.First());
+                    var targetObj = (ulong)staticField.GetValue(runtime.AppDomains.First());
+                    var targetType = staticField.Type;
+
+                    foreach (var property in properties.Skip(1))
+                    {
+                        var field = targetType.GetFieldByName(property);
+                        targetObj = (ulong)field.GetValue(targetObj);
+                    }
+
+                    return targetObj;
+                }
+            }
+            catch { return null; }
         }
 
         private static string GetCommandsTempFile(IEnumerable<string> commands)

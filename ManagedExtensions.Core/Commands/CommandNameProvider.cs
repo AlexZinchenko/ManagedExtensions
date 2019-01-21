@@ -5,20 +5,22 @@ namespace ManagedExtensions.Core.Commands
     public sealed class ExternalCommandNameProvider
     {
         #region Sos
-        public string Do(ulong objAddress)
+        public string DumpObj(ulong objAddress, bool bySos = false)
         {
-            return $"!sos.do {objAddress:x8}";
+            var alias = bySos ? "sos." : string.Empty;
+            return $"!{alias}do {objAddress:x8}";
         }
 
-        public string DumpVC(ulong objAdress, ulong methodTableAddress)
+        public string DumpVC(ulong objAdress, ulong methodTableAddress, bool bySos = false)
         {
-            return $"!sos.dumpvc {methodTableAddress:x8} {objAdress:x8}";
+            var alias = bySos ? "sos." : string.Empty;
+            return $"!{alias}dumpvc {methodTableAddress:x8} {objAdress:x8}";
         }
 
-        public string DumpObjectBySos(DynamicInstance obj)
+        public string DumpStructOrObject(DynamicInstance obj, bool bySos = false)
         {
             if (obj.Type.IsObjectReference)
-                return Do(obj.Address);
+                return DumpObj(obj.Address);
             else
                 return DumpVC(obj.Address, obj.Type.MethodTable);
         }

@@ -75,18 +75,29 @@
     <Compile Include="Commands\ICommandsLocator.cs" />
     <Compile Include="DebugServices.cs" />
     <Compile Include="Dynamic\DynamicArray.cs" />
+    <Compile Include="Dynamic\DynamicDictionary.cs" />
     <Compile Include="Dynamic\DynamicInstance.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Exceptions\CommandException.cs" />
     <Compile Include="Extensions\ClrTypeExtensions.cs" />
     <Compile Include="Extensions\HeapExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\TempFile.cs" />
     <Compile Include="IDebugServices.cs" />
     <Compile Include="Native\HRESULT.cs" />
-    <Compile Include="Out\Link.cs" />
+    <Compile Include="Out\Align.cs" />
+    <Compile Include="Out\Content.cs" />
+    <Compile Include="Out\Primitives\ChunkFactory.cs" />
+    <Compile Include="Out\Primitives\Link.cs" />
     <Compile Include="Out\Output.cs" />
-    <Compile Include="Out\Table.cs" />
+    <Compile Include="Out\Primitives\Chunk.cs" />
+    <Compile Include="Out\Primitives\Text.cs" />
+    <Compile Include="Out\TableOutput\Column.cs" />
+    <Compile Include="Out\TableOutput\Row.cs" />
+    <Compile Include="Out\TableOutput\Table.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypesPreloader.cs" />
+    <Compile Include="Verifiers\VerifyHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

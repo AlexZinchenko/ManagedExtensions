@@ -53,7 +53,7 @@ namespace ManagedExtensions.CommonCommands
             Output.WriteLine(
 @"ManagedExtensions is a debugger extension DLL that contains some useful commands.
 
-Extension is written in C# and works with ClrMd. So you need to put Microsoft.Diagnostics.Runtime.dll with this extension dll.
+Extension is written in C# and works with ClrMd.
 Commands are listed by category.
 Shortcut names for popular commands are listed in parenthesis.
 Type ""!{0}"" <command name> (or turn on dml) for detailed info on that command.", nameof(help));

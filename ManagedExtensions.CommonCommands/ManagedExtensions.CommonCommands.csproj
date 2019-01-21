@@ -66,6 +66,7 @@
     <Compile Include="DependencyProperties\DepPropertyInfo.cs" />
     <Compile Include="DependencyProperties\DumpDepPropertiesCommand.cs" />
     <Compile Include="DependencyProperties\DumpDepPropertyCommand.cs" />
+    <Compile Include="DumpObjCommand.cs" />
     <Compile Include="HelpCommand.cs" />
     <Compile Include="ICommandsLocatorExtensions.cs" />
     <Compile Include="OpenFileCommand.cs" />

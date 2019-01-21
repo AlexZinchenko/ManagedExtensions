@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Diagnostics.Runtime;
 
@@ -14,9 +15,21 @@ namespace ManagedExtensions.Core.Dynamic
 
         public int Length { get; private set; }
 
+        public DynamicInstance this[int index]
+        {
+            get
+            {
+                if (index >= Length || index < 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), index, "index out of range");
+
+                var elementAddress = Type.GetArrayElementAddress(Address, index);
+
+                return new DynamicInstance(elementAddress, Type.ComponentType, Heap);
+            }
+        }
         public IEnumerator<DynamicInstance> GetEnumerator()
         {
-            return new ArrayEnumerator(Type, Address, Heap);
+            return new ArrayEnumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -26,38 +39,33 @@ namespace ManagedExtensions.Core.Dynamic
 
         private class ArrayEnumerator : IEnumerator<DynamicInstance>
         {
-            public ArrayEnumerator(ClrType type, ulong address, ClrHeap heap)
+            public ArrayEnumerator(DynamicArray dArray)
             {
-                _arrayType = type;
-                _address = address;
-                _heap = heap;
-
                 Reset();
+                _dArray = dArray;
             }
 
-            public DynamicInstance Current
-            {
-                get
-                {
-                    var elementAddress = _arrayType.GetArrayElementAddress(_address, _currentIndex);
+            public DynamicInstance Current { get; private set; }
 
-                    return new DynamicInstance(elementAddress, _arrayType.ComponentType, _heap);
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
+            object IEnumerator.Current => Current;
 
             public bool MoveNext()
             {
-                return (++_currentIndex < _arrayType.GetArrayLength(_address));
+                if (_currentIndex < _dArray.Length)
+                {
+                    Current = _dArray[_currentIndex];
+                    _currentIndex++;
+
+                    return true;
+                }
+
+                Current = null;
+                return false;
             }
 
             public void Reset()
             {
-                _currentIndex = -1;
+                _currentIndex = 0;
             }
 
             public void Dispose()
@@ -65,9 +73,7 @@ namespace ManagedExtensions.Core.Dynamic
             }
 
             private int _currentIndex;
-            private ClrHeap _heap;
-            private ClrType _arrayType;
-            private ulong _address;
+            private readonly DynamicArray _dArray;
         }
     }
 }

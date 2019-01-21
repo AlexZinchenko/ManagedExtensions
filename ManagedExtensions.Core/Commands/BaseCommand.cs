@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ManagedExtensions.Core.Out;
+using ManagedExtensions.Core.Out.Primitives;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Diagnostics.Runtime.Interop;
 
@@ -20,6 +22,8 @@ namespace ManagedExtensions.Core.Commands
             
             Commands = host.Commands;
             ExternalCommandNames = host.ExternalCommandNames;
+
+            ChunkFactory = new ChunkFactory();
         }
 
         public IDebugClient DebugClient { get; private set; }
@@ -27,6 +31,7 @@ namespace ManagedExtensions.Core.Commands
         public DataTarget DataTarget { get; private set; }
         public ClrRuntime Runtime { get; private set; }
         public Output Output { get; private set; }
+        public ChunkFactory ChunkFactory { get; private set; }
         public ClrHeap Heap { get; private set; }
         public ICommandsLocator Commands { get; private set; }
         public ExternalCommandNameProvider ExternalCommandNames { get; private set; }
@@ -52,7 +57,7 @@ namespace ManagedExtensions.Core.Commands
                 var commandMethods = GetType()
                     .GetMethods()
                     .Where(m => m.IsStatic && m.GetCustomAttributes(false).OfType<CommandMethodAttribute>().Any())
-                    .Select(m => m.Name)
+                    .Select(m => AdjustName(m.Name))
                     .ToList();
 
                 return commandMethods;
@@ -60,5 +65,13 @@ namespace ManagedExtensions.Core.Commands
         }
 
         public abstract void WriteHelp();
+
+        private string AdjustName(string name)
+        {
+            if (name.StartsWith("_") && name.EndsWith("_"))
+                name = name.Substring(1, name.Length - 2);
+
+            return name;
+        }
     }
 }

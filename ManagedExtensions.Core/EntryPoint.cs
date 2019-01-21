@@ -48,6 +48,7 @@ namespace ManagedExtensions.Core
                 if (TryCreateRuntime(out runtime))
                 {
                     _commandsHost = new CommandsHost(_debugger, runtime);
+                    _typesPreloader.LoadAllTypes(_debugger, runtime);
                 }
             }
 
@@ -89,5 +90,6 @@ namespace ManagedExtensions.Core
 
         private static CommandsHost _commandsHost;
         private static DebugServices _debugger;
+        private static TypesPreloader _typesPreloader = new TypesPreloader();
     }
 }

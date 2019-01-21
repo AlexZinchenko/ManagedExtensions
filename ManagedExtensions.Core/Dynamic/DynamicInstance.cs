@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using ManagedExtensions.Core.Extensions;
 using Microsoft.Diagnostics.Runtime;
 
 namespace ManagedExtensions.Core.Dynamic
@@ -15,7 +16,7 @@ namespace ManagedExtensions.Core.Dynamic
             Heap = heap;
             Type = heap.GetObjectType(Address);
 
-            InitPrimitiveValue();
+            Init();
         }
 
         public DynamicInstance(ulong address, ClrType type, ClrHeap heap)
@@ -28,17 +29,18 @@ namespace ManagedExtensions.Core.Dynamic
             else
                 Type = type;
 
-            InitPrimitiveValue();
+            Init();
         }
 
         public ClrType Type { get; private set; }
         public ulong Address { get; private set; }
         public string HexAddress { get { return $"{Address:x8}"; } }
-        public dynamic AsDynamic { get { return this; } }
+        public dynamic AsDynamic => this;
         public object PrimitiveValue { get; private set; }
         public string DisplayedPrimitiveValue { get; private set; }
-        public bool IsPrimitive { get { return PrimitiveValue != null; } }
-        public bool IsNull { get { return Address == 0 && Type.IsObjectReference; } }
+        public bool IsNull => Address == 0 && Type.IsObjectReference;
+        public bool IsDictionary => Type.IsDictionary();
+        public bool IsString => Type.IsString;
 
         public IEnumerable<DynamicInstance> GetStaticFields(Func<ClrStaticField, bool> fieldsFilter, bool includeParents = false)
         {
@@ -46,7 +48,7 @@ namespace ManagedExtensions.Core.Dynamic
 
             IEnumerable<ClrStaticField> fields = includeParents ? GetAllStaticFields(Type) : Type.StaticFields;
 
-            return fields.Where(fieldsFilter).Select(sf => DynamicInstance.FromField(sf.GetValue(appDomain), sf, Heap));
+            return fields.Where(fieldsFilter).Select(sf => FromField(sf.GetValue(appDomain, convertStrings: false), sf, Heap));
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -54,9 +56,16 @@ namespace ManagedExtensions.Core.Dynamic
             var field = Type.GetFieldByName(binder.Name);
             if (field != null)
             {
-                var fieldValue = field.GetValue(Address, Type.IsValueClass);
+                var isObjReference = field.Type.IsObjectReference;
+                var isPrimitive = field.Type.IsPrimitive;
+                object fieldValue;
 
-                result = DynamicInstance.FromField(fieldValue, field, Heap);
+                if (isObjReference || isPrimitive)
+                    fieldValue = field.GetValue(Address, Type.IsValueClass, convertStrings: false);
+                else
+                    fieldValue = field.GetAddress(Address, Type.IsValueClass);
+                
+                result = FromField(fieldValue, field, Heap);
 
                 return true;
             }
@@ -66,6 +75,12 @@ namespace ManagedExtensions.Core.Dynamic
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
+            if (IsNull)
+            {
+                result = null;
+                return true;
+            }
+
             if (binder.ReturnType == typeof(ClrType) && Type.Name == "System.RuntimeType")
             {
                 result = ConvertToClrType();
@@ -78,7 +93,13 @@ namespace ManagedExtensions.Core.Dynamic
                 return true;
             }
 
-            if (binder.ReturnType.IsPrimitive || binder.ReturnType == typeof(string) && IsPrimitive)
+            if (binder.ReturnType == typeof(DynamicDictionary) && IsDictionary)
+            {
+                result = new DynamicDictionary(Address, Heap);
+                return true;
+            }
+
+            if (binder.ReturnType.IsPrimitive || binder.ReturnType == typeof(string) && PrimitiveValue != null)
             {
                 result = PrimitiveValue;
                 return true;
@@ -112,17 +133,36 @@ namespace ManagedExtensions.Core.Dynamic
             InitPrimitiveValue(primitiveValue);
         }
 
+        private void Init()
+        {
+            InitPrimitiveValue();
+        }
+
         private void InitPrimitiveValue(object sourcePrimitiveValue = null)
         {
+            if (IsNull)
+            {
+                PrimitiveValue = null;
+                DisplayedPrimitiveValue = "NULL";
+                return;
+            }
+
             PrimitiveValue = sourcePrimitiveValue;
 
-            if (sourcePrimitiveValue == null && Type.HasSimpleValue && Address != 0)
+            if (sourcePrimitiveValue == null
+                && Type.HasSimpleValue
+                && (!Type.IsObjectReference || IsString)
+                && Address != 0)
+            {
                 PrimitiveValue = Type.GetValue(Address);
+            }
 
             if (PrimitiveValue != null)
             {
                 if (!Type.IsEnum)
+                {
                     DisplayedPrimitiveValue = string.Format(CultureInfo.InvariantCulture, "{0}", PrimitiveValue);
+                }
                 else
                 {
                     DisplayedPrimitiveValue = Type.GetEnumName(PrimitiveValue);
@@ -130,18 +170,14 @@ namespace ManagedExtensions.Core.Dynamic
                         DisplayedPrimitiveValue = PrimitiveValue.ToString();
                 }
             }
-            else
-            {
-                DisplayedPrimitiveValue = string.Empty;
-            }
         }
 
-        private static DynamicInstance FromField(object fieldValue, ClrField field, ClrHeap heap)
+        private static DynamicInstance FromField(object value, ClrField field, ClrHeap heap)
         {
-            if (field.IsPrimitive || field.Type.IsString)
-                return new DynamicInstance(fieldValue, field.Type, heap);
+            if (field.IsPrimitive)
+                return new DynamicInstance(value, field.Type, heap);
 
-            return new DynamicInstance((ulong)fieldValue, field.Type, heap);
+            return new DynamicInstance((ulong)value, field.Type, heap);
         }
     }
 }
