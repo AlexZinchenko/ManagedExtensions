@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using ManagedExtensions.Core.Commands;
 using ManagedExtensions.Core.Native;
+using ManagedExtensions.Core.Out.Primitives;
 using Microsoft.Diagnostics.Runtime;
 
 namespace ManagedExtensions.Core
@@ -18,24 +19,23 @@ namespace ManagedExtensions.Core
             flags = 0;
             return HRESULT.S_OK;
         }
-
+        
         public static void Execute<TCommand>(IntPtr client, Action<TCommand> commandMethod)
-            where TCommand : BaseCommand
+            where TCommand : NativeCommand
         {
-            if (InitApi(client))
+            InitApi(client);
+
+            try
             {
-                try
-                {
-                    _commandsHost.Execute(commandMethod);
-                }
-                catch (Exception e)
-                {
-                    _debugger.Output.WriteLine("Unhandled exception {0}: {1}, \nstackTrace:\n{2}", e.GetType(), e.Message, e.StackTrace);
-                }
+                _commandsHost.Execute(commandMethod);
+            }
+            catch (Exception e)
+            {
+                _debugger.Output.WriteLine("Unhandled exception {0}: {1}, \nstackTrace:\n{2}", e.GetType(), e.Message, e.StackTrace);
             }
         }
         
-        private static bool InitApi(IntPtr ptrClient)
+        private static void InitApi(IntPtr ptrClient)
         {
             if (_debugger == null)
             {
@@ -50,9 +50,11 @@ namespace ManagedExtensions.Core
                     _commandsHost = new CommandsHost(_debugger, runtime);
                     _typesPreloader.LoadAllTypes(_debugger, runtime);
                 }
+                else
+                {
+                    _commandsHost = new CommandsHost(_debugger);
+                }
             }
-
-            return _commandsHost != null;
         }
 
         private static bool TryCreateRuntime(out ClrRuntime runtime)
@@ -67,8 +69,9 @@ namespace ManagedExtensions.Core
 
             runtime = null;
 
-            _debugger.Output.WriteLine("Mscordacwks.dll not loaded into the debugger.");
-            _debugger.Output.WriteLine("Run .cordll to load the dac before running this command.");
+            _debugger.Output.WriteLine("Mscordacwks.dll wasn't loaded into the debugger.");
+            _debugger.Output.WriteLine(Text.CreateWithInvertedColor("Only commands for analyzing native application dumps are available."));
+            _debugger.Output.WriteLine();
 
             return false;
         }

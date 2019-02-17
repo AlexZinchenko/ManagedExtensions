@@ -2,13 +2,12 @@
 
 namespace ManagedExtensions.Core.Commands
 {
-    public interface ICommandsHost
+    public interface INativeCommandsHost
     {
         IDebugServices DebugServices { get; }
-        ClrRuntime Runtime { get; }
         ICommandsLocator Commands { get; }
         ExternalCommandNameProvider ExternalCommandNames { get; }
-
-        BaseCommand FindCommandByMethodName(string methodName);
+        bool OnlyNativeCommandsAreAvailable { get; }
+        NativeCommand FindCommandByMethodName(string methodName);
     }
 }

@@ -11,7 +11,7 @@ namespace ManagedExtensions.Core.Out.Primitives
         public abstract int Width { get; }
         internal abstract int MinWidth { get; }
         internal abstract void Output(int fixedWidth, Align align, Output output);
-        internal abstract void Output(Output output);
+        public abstract void Output(Output output);
         public static implicit operator Chunk(string str)
         {
             return new Text(str);

@@ -17,9 +17,9 @@ namespace ManagedExtensions.Core.Dynamic
             ValueTypeName = genericTypeNames[1];
         }
 
-        public int Count { get; private set; }
-        public string KeyTypeName { get; set; }
-        public string ValueTypeName { get; set; }
+        public int Count { get; }
+        public string KeyTypeName { get; }
+        public string ValueTypeName { get; }
 
         public IEnumerable<DynamicInstance> Keys
         {

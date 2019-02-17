@@ -8,9 +8,9 @@ using ManagedExtensions.Core.Out;
 
 namespace ManagedExtensions.CommonCommands
 {
-    public sealed class HelpCommand : BaseCommand
+    public sealed class HelpCommand : NativeCommand
     {
-        public HelpCommand(ICommandsHost debugger)
+        public HelpCommand(INativeCommandsHost debugger)
             : base(debugger)
         {
         }
@@ -74,7 +74,7 @@ Type ""!{0}"" <command name> (or turn on dml) for detailed info on that command.
                 {
                     var names = command.ExportedNames;
 
-                    Output.WriteLine("{0}", new Link(ConcatNames(names), GetCallString(names.First())));
+                    Output.WriteLine(new Link(ConcatNames(names), GetCallString(names.First())));
                 }
             }
         }

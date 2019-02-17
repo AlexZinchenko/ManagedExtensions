@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ManagedExtensions.Core.Out.Primitives
 {
@@ -14,7 +12,23 @@ namespace ManagedExtensions.Core.Out.Primitives
             _value = value;
         }
 
+        public Text(string value, Color backgroundColor, Color foregroundColor) : this(value)
+        {
+            _backgroundColor = backgroundColor;
+            _foregroundColor = foregroundColor;
+        }
+
+        public static Text CreateWithInvertedColor(string value)
+        {
+            return new Text(value, Color.DefaultForeground, Color.DefaultBackground);
+        }
+
         public override int Width => _value.Length;
+
+        public override void Output(Output output)
+        {
+            Write(_value, output);
+        }
 
         internal override int MinWidth => Math.Min(1 + _dots.Length, Width);
 
@@ -27,24 +41,43 @@ namespace ManagedExtensions.Core.Out.Primitives
             {
                 if (align == Align.Left)
                 {
-                    output.Write(_value.Substring(0, fixedWidth - _dots.Count()));
-                    output.Write(_dots);
+                    Write(_value.Substring(0, fixedWidth - _dots.Count()), output);
+                    Write(_dots, output);
                 }
                 else
                 {
-                    output.Write(_dots);
-                    output.Write(_value.Substring(_dots.Count() + (Width - fixedWidth)));
+                    Write(_dots, output);
+                    Write(_value.Substring(_dots.Count() + (Width - fixedWidth)), output);
                 }
             }
             else
             {
-                output.Write(_value.InFixedSpace(fixedWidth, align));
+                Write(_value.InFixedSpace(fixedWidth, align), output);
             }
         }
 
-        internal override void Output(Output output)
+        private void Write(string str, Output output)
         {
-            output.Write(_value);
+            if (_backgroundColor == null && _foregroundColor == null)
+            {
+                output.Write(str);
+            }
+            else
+            {
+                var bgc = ConvertColor(_backgroundColor, _colors, _defaultBackgroundColor);
+                var fgc = ConvertColor(_foregroundColor, _colors, _defaultForegroundColor);
+
+                output.WriteDml($"<col fg=\"{fgc}\" bg=\"{bgc}\">{str}</col>");
+            }
+        }
+
+        private static string ConvertColor(Color? color, Dictionary<Color, string> colors, Color defaultColor)
+        {
+            if (color == null || !colors.ContainsKey(color.Value))
+            {
+                color = defaultColor;
+            }
+            return colors[color.Value];
         }
 
         public static implicit operator Text(string str)
@@ -54,5 +87,16 @@ namespace ManagedExtensions.Core.Out.Primitives
 
         private string _value;
         private string _dots = "...";
+        private readonly Color? _backgroundColor;
+        private readonly Color? _foregroundColor;
+
+        private static readonly Dictionary<Color, string> _colors = new Dictionary<Color, string>
+        {
+            { _defaultBackgroundColor, "wbg" },
+            { _defaultForegroundColor, "wfg" }
+        };
+
+        private const Color _defaultBackgroundColor = Color.DefaultBackground;
+        private const Color _defaultForegroundColor = Color.DefaultForeground;
     }
 }

@@ -15,9 +15,9 @@ using System.Runtime.InteropServices;
 namespace ManagedExtensions.CommonCommands
 {
     [CommandGroup(Id = CommandGroupId.Common)]
-    public sealed class DumpObjCommand : BaseCommand
+    public sealed class DumpObjCommand : ManagedCommand
     {
-        public DumpObjCommand(ICommandsHost debugger)
+        public DumpObjCommand(IManagedCommandsHost debugger)
             : base(debugger)
         {
         }
@@ -54,6 +54,45 @@ namespace ManagedExtensions.CommonCommands
             if (instance.IsDictionary)
             {
                 DumpDictionary(instance);
+            }
+            else if (instance.IsHashSet)
+            {
+                DumpHashSet(instance);
+            }
+        }
+
+        private void DumpHashSet(DynamicInstance instance)
+        {
+            DynamicHashSet hashSet = instance.AsDynamic;
+
+            if (hashSet.Count == 0)
+                return;
+
+            Output.WriteLine($"\nElements [{hashSet.Count}]:");
+
+            var columns = new List<Column>();
+            var displayElementType = hashSet.ToList().Any(v => !v.IsNull && v.Type.Name != hashSet.ElementTypeName);
+            if (displayElementType)
+            {
+                columns.Add(new Column("ElementType", minWidth: 10) { Align = Align.Left });
+            }
+
+            columns.Add(new Column("Element") { Align = Align.Left });
+            
+            using (var table = new Table(Output, columns))
+            {
+                foreach (var element in hashSet)
+                {
+                    var row = table.CreateRow();
+
+                    if (displayElementType)
+                    {
+                        row.Add(element.Type.Name);
+                    }
+                    row.Add(GetChunk(element));
+                    
+                    table.AddRow(row);
+                }
             }
         }
 

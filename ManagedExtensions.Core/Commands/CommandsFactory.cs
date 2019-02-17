@@ -6,26 +6,21 @@ using System.Threading.Tasks;
 
 namespace ManagedExtensions.Core.Commands
 {
-    public sealed class CommandsFactory// : ICommandsFactory
+    internal sealed class CommandsFactory
     {
-        public CommandsFactory(ICommandsHost commandsHost)
+        public CommandsFactory(INativeCommandsHost commandsHost)
         {
             _commandsHost = commandsHost;
         }
-
-        //public TCommand CreateCommand<TCommand>() where TCommand : BaseCommand
-        //{
-        //    return (TCommand)CreateCommand(typeof(TCommand));
-        //}
-
-        public BaseCommand CreateCommand(Type commandType)
+        
+        public NativeCommand CreateCommand(Type commandType)
         {
-            if (!typeof(BaseCommand).IsAssignableFrom(commandType))
-                throw new ArgumentException($"{commandType} must be inherited from BaseCommand", nameof(commandType));
+            if (!typeof(NativeCommand).IsAssignableFrom(commandType))
+                throw new ArgumentException($"{commandType} must be inherited from {typeof(NativeCommand)}", nameof(commandType));
 
-            return (BaseCommand)Activator.CreateInstance(commandType, _commandsHost);
+            return (NativeCommand)Activator.CreateInstance(commandType, _commandsHost);
         }
 
-        private ICommandsHost _commandsHost;
+        private INativeCommandsHost _commandsHost;
     }
 }

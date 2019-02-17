@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ManagedExtensions.Core.Out;
 using ManagedExtensions.Core.Out.Primitives;
@@ -8,18 +7,15 @@ using Microsoft.Diagnostics.Runtime.Interop;
 
 namespace ManagedExtensions.Core.Commands
 {
-    public abstract class BaseCommand
+    public abstract class NativeCommand
     {
-        public BaseCommand(ICommandsHost host)
+        public NativeCommand(INativeCommandsHost host)
         {
             DebugClient = host.DebugServices.DebugClient;
             DataTarget = host.DebugServices.DataTarget;
             Output = host.DebugServices.Output;
             Host = host;
 
-            Runtime = host.Runtime;
-            Heap = Runtime.Heap;
-            
             Commands = host.Commands;
             ExternalCommandNames = host.ExternalCommandNames;
 
@@ -29,13 +25,11 @@ namespace ManagedExtensions.Core.Commands
         public IDebugClient DebugClient { get; private set; }
         public IDebugDataSpaces DebugDataSpaces { get { return (IDebugDataSpaces)DebugClient; } }
         public DataTarget DataTarget { get; private set; }
-        public ClrRuntime Runtime { get; private set; }
         public Output Output { get; private set; }
         public ChunkFactory ChunkFactory { get; private set; }
-        public ClrHeap Heap { get; private set; }
         public ICommandsLocator Commands { get; private set; }
         public ExternalCommandNameProvider ExternalCommandNames { get; private set; }
-        public ICommandsHost Host { get; set; }
+        public INativeCommandsHost Host { get; set; }
         public CommandGroupId Group
         {
             get

@@ -40,6 +40,7 @@ namespace ManagedExtensions.Core.Dynamic
         public string DisplayedPrimitiveValue { get; private set; }
         public bool IsNull => Address == 0 && Type.IsObjectReference;
         public bool IsDictionary => Type.IsDictionary();
+        public bool IsHashSet => Type.IsHashSet();
         public bool IsString => Type.IsString;
 
         public IEnumerable<DynamicInstance> GetStaticFields(Func<ClrStaticField, bool> fieldsFilter, bool includeParents = false)
@@ -96,6 +97,12 @@ namespace ManagedExtensions.Core.Dynamic
             if (binder.ReturnType == typeof(DynamicDictionary) && IsDictionary)
             {
                 result = new DynamicDictionary(Address, Heap);
+                return true;
+            }
+
+            if (binder.ReturnType == typeof(DynamicHashSet) && IsHashSet)
+            {
+                result = new DynamicHashSet(Address, Heap);
                 return true;
             }
 

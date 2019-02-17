@@ -62,6 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ManagedExtensions.Core\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="DependencyProperties\DepPropertiesProvider.cs" />
     <Compile Include="DependencyProperties\DepPropertyInfo.cs" />
     <Compile Include="DependencyProperties\DumpDepPropertiesCommand.cs" />
@@ -70,7 +73,6 @@
     <Compile Include="HelpCommand.cs" />
     <Compile Include="ICommandsLocatorExtensions.cs" />
     <Compile Include="OpenFileCommand.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DllExport\DllExport.csproj">

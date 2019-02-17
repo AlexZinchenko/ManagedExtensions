@@ -4,11 +4,11 @@ namespace ManagedExtensions.Core.Commands
 {
     public interface ICommandsLocator
     {
-        IEnumerable<BaseCommand> AllCommands { get; }
+        IEnumerable<NativeCommand> AllCommands { get; }
 
-        TCommand Get<TCommand>() where TCommand : BaseCommand;
+        TCommand Get<TCommand>() where TCommand : NativeCommand;
         bool IsRegistered<TCommand>();
 
-        void Register(BaseCommand command);
+        void Register(NativeCommand command);
     }
 }

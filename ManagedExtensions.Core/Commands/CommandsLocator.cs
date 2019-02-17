@@ -5,7 +5,7 @@ namespace ManagedExtensions.Core.Commands
 {
     public sealed class CommandsLocator : ICommandsLocator
     {
-        public TCommand Get<TCommand>() where TCommand : BaseCommand
+        public TCommand Get<TCommand>() where TCommand : NativeCommand
         {
             if (_commands.ContainsKey(typeof(TCommand)))
                 return (TCommand)_commands[typeof(TCommand)];
@@ -13,9 +13,9 @@ namespace ManagedExtensions.Core.Commands
             throw new InvalidOperationException($"Command {typeof(TCommand)} is not registered");
         }
 
-        public IEnumerable<BaseCommand> AllCommands => _commands.Values;
+        public IEnumerable<NativeCommand> AllCommands => _commands.Values;
 
-        public void Register(BaseCommand command)
+        public void Register(NativeCommand command)
         {
             var commandType = command.GetType();
 
@@ -33,6 +33,6 @@ namespace ManagedExtensions.Core.Commands
             return _commands.ContainsKey(typeof(TCommand));
         }
         
-        private Dictionary<Type, BaseCommand> _commands = new Dictionary<Type, BaseCommand>();
+        private Dictionary<Type, NativeCommand> _commands = new Dictionary<Type, NativeCommand>();
     }
 }

@@ -8,9 +8,9 @@ using ManagedExtensions.Core.Verifiers;
 namespace ManagedExtensions.CommonCommands.DependencyProperties
 {
     [CommandGroup(Id = CommandGroupId.Wpf)]
-    public sealed class DumpDepPropertyCommand : BaseCommand
+    public sealed class DumpDepPropertyCommand : ManagedCommand
     {
-        public DumpDepPropertyCommand(ICommandsHost debugger) : base(debugger)
+        public DumpDepPropertyCommand(IManagedCommandsHost host) : base(host)
         {
         }
 

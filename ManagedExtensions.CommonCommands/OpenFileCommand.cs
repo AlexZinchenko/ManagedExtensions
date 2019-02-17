@@ -6,9 +6,9 @@ using ManagedExtensions.Core.Commands;
 
 namespace ManagedExtensions.CommonCommands
 {
-    public sealed class OpenFileCommand : BaseCommand
+    public sealed class OpenFileCommand : NativeCommand
     {
-        public OpenFileCommand(ICommandsHost debugger)
+        public OpenFileCommand(INativeCommandsHost debugger)
             : base(debugger)
         {
         }

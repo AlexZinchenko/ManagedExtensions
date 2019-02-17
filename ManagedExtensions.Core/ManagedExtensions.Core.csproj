@@ -62,7 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\BaseCommand.cs" />
+    <Compile Include="Commands\NativeCommand.cs" />
     <Compile Include="Commands\CommandGroupAttribute.cs" />
     <Compile Include="Commands\CommandGroupId.cs" />
     <Compile Include="Commands\CommandMethodAttribute.cs" />
@@ -71,11 +71,14 @@
     <Compile Include="Commands\CommandsHost.cs" />
     <Compile Include="Commands\CommandsLocator.cs" />
     <Compile Include="Commands\ICommandsFactory.cs" />
-    <Compile Include="Commands\ICommandsHost.cs" />
+    <Compile Include="Commands\IManagedCommandsHost.cs" />
+    <Compile Include="Commands\INativeCommandsHost.cs" />
     <Compile Include="Commands\ICommandsLocator.cs" />
+    <Compile Include="Commands\ManagedCommand.cs" />
     <Compile Include="DebugServices.cs" />
     <Compile Include="Dynamic\DynamicArray.cs" />
     <Compile Include="Dynamic\DynamicDictionary.cs" />
+    <Compile Include="Dynamic\DynamicHashSet.cs" />
     <Compile Include="Dynamic\DynamicInstance.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Exceptions\CommandException.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Native\HRESULT.cs" />
     <Compile Include="Out\Align.cs" />
     <Compile Include="Out\Content.cs" />
+    <Compile Include="Out\Primitives\Color.cs" />
     <Compile Include="Out\Primitives\ChunkFactory.cs" />
     <Compile Include="Out\Primitives\Link.cs" />
     <Compile Include="Out\Output.cs" />

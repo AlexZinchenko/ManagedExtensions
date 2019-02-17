@@ -19,11 +19,6 @@ namespace ManagedExtensions.Core.Out
 
         internal override int MinWidth => Width;
 
-        public override string ToString()
-        {
-            return string.Format(_linkTemplate, Cmd, DisplayName);
-        }
-
         internal override void Output(int fixedWidth, Align align, Output output)
         {
             if (fixedWidth < Width)
@@ -31,14 +26,17 @@ namespace ManagedExtensions.Core.Out
                 throw new ArgumentException($"Can't output link in {fixedWidth} width, width = {Width}");
             }
 
-            output.Write("{0}", new Link(DisplayName.InFixedSpace(fixedWidth, align), Cmd));
+            Write(DisplayName.InFixedSpace(fixedWidth, align), Cmd, output);
         }
 
-        internal override void Output(Output output)
+        public override void Output(Output output)
         {
-            output.Write("{0}", this);
+            Write(DisplayName, Cmd, output);
         }
 
-        private readonly string _linkTemplate = "<link cmd=\"{0}\">{1}</link>";
+        private void Write(string displayName, string cmd, Output output)
+        {
+            output.WriteDml("<link cmd=\"{0}\">{1}</link>", cmd, displayName);
+        }
     }
 }

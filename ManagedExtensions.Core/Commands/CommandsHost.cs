@@ -7,12 +7,16 @@ using ManagedExtensions.Core.Out;
 
 namespace ManagedExtensions.Core.Commands
 {
-    public sealed class CommandsHost : ICommandsHost
+    internal sealed class CommandsHost : IManagedCommandsHost
     {
-        public CommandsHost(IDebugServices debugServices, ClrRuntime runtime)
+        internal CommandsHost(IDebugServices debugServices) : this(debugServices, null)
+        {
+        }
+
+        internal CommandsHost(IDebugServices debugServices, ClrRuntime runtime)
         {
             DebugServices = debugServices;
-            Runtime = runtime;
+            ClrRuntime = runtime;
 
             ExternalCommandNames = new ExternalCommandNameProvider();
             Commands = new CommandsLocator();
@@ -22,12 +26,14 @@ namespace ManagedExtensions.Core.Commands
         }
 
         public IDebugServices DebugServices { get; private set; }
-        public ClrRuntime Runtime { get; private set; }
+        public ClrRuntime ClrRuntime { get; private set; }
+        public bool IsNativeDump => ClrRuntime == null;
+        public bool OnlyNativeCommandsAreAvailable => IsNativeDump;
         public ICommandsLocator Commands { get; private set; }
         public ExternalCommandNameProvider ExternalCommandNames { get; private set; }
         public Output Output => DebugServices.Output;
 
-        public void Execute<TCommand>(Action<TCommand> commandMethod) where TCommand : BaseCommand
+        public void Execute<TCommand>(Action<TCommand> commandMethod) where TCommand : NativeCommand
         {
             var command = Commands.Get<TCommand>();
 
@@ -41,7 +47,7 @@ namespace ManagedExtensions.Core.Commands
             }
         }
 
-        public BaseCommand FindCommandByMethodName(string methodName)
+        public NativeCommand FindCommandByMethodName(string methodName)
         {
             if (_methodMap.ContainsKey(methodName))
                 return _methodMap[methodName];
@@ -51,10 +57,17 @@ namespace ManagedExtensions.Core.Commands
 
         private void AddCommands()
         {
-            var allTypes = GetType().Assembly.GetTypes();
+            var allTypes = GetType()
+                .Assembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && typeof(NativeCommand).IsAssignableFrom(t));
 
-            foreach (var commandType in allTypes
-                        .Where(t => !t.IsAbstract && typeof(BaseCommand).IsAssignableFrom(t)))
+            if (IsNativeDump)
+            {
+                allTypes = allTypes.Where(t => !typeof(ManagedCommand).IsAssignableFrom(t));
+            }
+
+            foreach (var commandType in allTypes)
             {
                 var command = _commandsFactory.CreateCommand(commandType);
 
@@ -76,6 +89,6 @@ namespace ManagedExtensions.Core.Commands
         }
 
         private CommandsFactory _commandsFactory;
-        private Dictionary<string, BaseCommand> _methodMap = new Dictionary<string, BaseCommand>();
+        private Dictionary<string, NativeCommand> _methodMap = new Dictionary<string, NativeCommand>();
     }
 }

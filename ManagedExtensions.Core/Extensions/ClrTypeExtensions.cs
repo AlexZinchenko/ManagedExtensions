@@ -33,6 +33,11 @@ namespace ManagedExtensions.Core.Extensions
             return type.Name.StartsWith("System.Collections.Generic.Dictionary<");
         }
 
+        public static bool IsHashSet(this ClrType type)
+        {
+            return type.Name.StartsWith("System.Collections.Generic.HashSet<");
+        }
+
         public static List<string> GenericTypeArguments(this ClrType type)
         {
             var typeName = type.Name;
